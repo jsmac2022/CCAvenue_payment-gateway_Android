@@ -33,11 +33,10 @@ import com.android.volley.toolbox.Volley;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class WebViewActivity extends AppCompatActivity {
+
     Intent mainIntent;
     String encVal;
     String vResponse;
-
-
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -45,10 +44,9 @@ public class WebViewActivity extends AppCompatActivity {
         mainIntent = getIntent();
 
 //get rsa key method
-        get_RSA_key(mainIntent.getStringExtra(AvenuesParams.ACCESS_CODE), mainIntent.getStringExtra(AvenuesParams.ORDER_ID));
+        get_RSA_key(mainIntent.getStringExtra(AvenuesParams.ACCESS_CODE),
+                mainIntent.getStringExtra(AvenuesParams.ORDER_ID));
     }
-
-
 
     private class RenderView extends AsyncTask<Void, Void, Void> {
         @Override
@@ -68,7 +66,6 @@ public class WebViewActivity extends AppCompatActivity {
                 vEncVal.append(ServiceUtility.addToPostParams(AvenuesParams.CURRENCY, mainIntent.getStringExtra(AvenuesParams.CURRENCY)));
                 encVal = RSAUtility.encrypt(vEncVal.substring(0, vEncVal.length() - 1), vResponse);  //encrypt amount and currency
             }
-
             return null;
         }
 
@@ -133,36 +130,27 @@ public class WebViewActivity extends AppCompatActivity {
 
     public void get_RSA_key(final String ac, final String od) {
         LoadingDialog.showLoadingDialog(WebViewActivity.this, "Loading...");
-
         StringRequest stringRequest = new StringRequest(Request.Method.POST, mainIntent.getStringExtra(AvenuesParams.RSA_KEY_URL),
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        //Toast.makeText(WebViewActivity.this,response,Toast.LENGTH_LONG).show();
-                        LoadingDialog.cancelLoading();
+                response -> {
+                    //Toast.makeText(WebViewActivity.this,response,Toast.LENGTH_LONG).show();
+                    LoadingDialog.cancelLoading();
 
-                        if (response != null && !response.equals("")) {
-                            vResponse = response;     ///save retrived rsa key
-                            if (vResponse.contains("!ERROR!")) {
-                                show_alert(vResponse);
-                            } else {
-                                new RenderView().execute();   // Calling async task to get display content
-                            }
-
-
+                    if (response != null && !response.equals("")) {
+                        vResponse = response;     ///save retrived rsa key
+                        if (vResponse.contains("!ERROR!")) {
+                            show_alert(vResponse);
+                        } else {
+                            new RenderView().execute();   // Calling async task to get display content
                         }
-                        else
-                        {
-                            show_alert("No response");
-                        }
+                     }
+                    else
+                    {
+                        show_alert("No response");
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        LoadingDialog.cancelLoading();
-                        //Toast.makeText(WebViewActivity.this,error.toString(),Toast.LENGTH_LONG).show();
-                    }
+                error -> {
+                    LoadingDialog.cancelLoading();
+                    //Toast.makeText(WebViewActivity.this,error.toString(),Toast.LENGTH_LONG).show();
                 }) {
             @Override
             protected Map<String, String> getParams() {
@@ -171,15 +159,13 @@ public class WebViewActivity extends AppCompatActivity {
                 params.put(AvenuesParams.ORDER_ID, od);
                 return params;
             }
-
         };
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                30000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                30000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
     }
+
 
     public void show_alert(String msg) {
         AlertDialog alertDialog = new AlertDialog.Builder(
@@ -197,8 +183,7 @@ public class WebViewActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-
         alertDialog.show();
     }
+
 }

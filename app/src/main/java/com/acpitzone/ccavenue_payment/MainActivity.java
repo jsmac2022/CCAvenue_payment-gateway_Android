@@ -23,6 +23,7 @@ String amount, order_ID;;
 
         EditText editamount=findViewById(R.id.enter_amount);
         Button paybutton=findViewById(R.id.hellobutton);
+
         paybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,6 +56,7 @@ String amount, order_ID;;
 
             }
         });
+
     }
 
     @Override
